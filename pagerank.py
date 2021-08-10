@@ -6,14 +6,12 @@ from pyspark.sql import SparkSession
 
 
 def computeContribs(urls, rank):
-    """Calculates URL contributions to the rank of other URLs."""
     num_urls = len(urls)
     for url in urls:
         yield (url, rank / num_urls)
 
 
 def parseNeighbors(urls):
-    """Parses a urls pair string into urls pair."""
     parts = re.split(r'\s+', urls)
     return parts[0], parts[1]
 
@@ -23,7 +21,6 @@ if __name__ == "__main__":
         print("Usage: pagerank <file> <iterations>", file=sys.stderr)
         sys.exit(-1)
 
-    # Initialize the spark context.
     spark = SparkSession\
         .builder\
         .appName("PythonPageRank")\
@@ -35,7 +32,6 @@ if __name__ == "__main__":
 
     ranks = links.map(lambda url_neighbors: (url_neighbors[0], 1.0))
 
-    # Calculates and updates URL ranks continuously using PageRank algorithm.
     for iteration in range(int(sys.argv[2])):
         contribs = links.join(ranks).flatMap(
             lambda url_urls_rank: computeContribs(url_urls_rank[1][0], url_urls_rank[1][1]))
